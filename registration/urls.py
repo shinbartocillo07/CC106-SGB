@@ -13,4 +13,7 @@ urlpatterns = [
     path('students/<int:pk>/', views.student_detail, name='student_detail'),
     path('students/<int:pk>/edit/', views.student_update, name='student_update'),
     path('students/<int:pk>/delete/', views.student_delete, name='student_delete'),
+
+    # Module 08: Staff Dashboard
+    path('dashboard/', views.staff_dashboard, name='staff_dashboard'),
 ]
