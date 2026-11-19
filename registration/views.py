@@ -172,7 +172,57 @@ def student_delete(request, pk):
 
 @user_passes_test(staff_check, login_url='login')
 def staff_dashboard(request):
+    # 1. Count all Student records
+    total_students = Student.objects.count()
+
+    # 2. Count Student records by gender
+    male_students = Student.objects.filter(
+        gender='Male'
+    ).count()
+    female_students = Student.objects.filter(
+        gender='Female'
+    ).count()
+
+    # 3. Calculate percentages safely
+    male_percent = (
+        male_students / total_students * 100
+        if total_students > 0 else 0
+    )
+    female_percent = (
+        female_students / total_students * 100
+        if total_students > 0 else 0
+    )
+
+    # 4. Read the search term from the URL
+    query = request.GET.get('q', '').strip()
+
+    # 5. Prepare the student report
+    students = Student.objects.all().order_by(
+        'last_name',
+        'first_name'
+    )
+
+    # 6. Filter the report when a search term is supplied
+    if query:
+        students = students.filter(
+            Q(student_id__icontains=query) |
+            Q(first_name__icontains=query) |
+            Q(last_name__icontains=query)
+        )
+
+    # 7. Send all required values to the template
+    context = {
+        'total_students': total_students,
+        'male_students': male_students,
+        'female_students': female_students,
+        'male_percent': male_percent,
+        'female_percent': female_percent,
+        'students': students,
+        'query': query,
+    }
+
     return render(
         request,
-        'registration/dashboard.html'
+        'registration/dashboard.html',
+        context
     )
